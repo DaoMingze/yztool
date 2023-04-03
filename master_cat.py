@@ -4,7 +4,7 @@ import os
 import requests
 from lxml import etree
 
-## ↑引用xpath库，分析网页元素
+# ↑引用xpath库，分析网页元素
 
 right_path = __file__.rstrip(os.path.basename(__file__))  # 获取当前文件的所在路径
 os.chdir(right_path)  # 将工作路径改至目标路径
@@ -18,16 +18,16 @@ def get(url=str, keyword: str = ""):
     fakeua = {
         "Accept": "text/html, application/xhtml+xml, */*",
         "Accept-Language": "en-US,en;q=0.8,zh-Hans-CN;q=0.5,zh-Hans;q=0.3",
-        "User-Agent": "Mozilla/5.0 (Windows NT 6.2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
     }
     timeout = 60
-    ## ↑虚假UA（用户代理），以免抓取频率过高导致报错
+    # ↑虚假UA（用户代理），以免抓取频率过高导致报错
     Page = requests.get(
         url + keyword,
         headers=fakeua,
         timeout=timeout,
     )
-    ## ↑引用request库，抓取网页
+    # ↑引用request库，抓取网页
     html = etree.HTML(Page.text)
     return html
 
@@ -47,7 +47,7 @@ def readfile(name=str):
 
 
 def queryuniversities(html):
-    ## ↓构造xpath路径，抓取元素 html.xpath("")
+    # ↓构造xpath路径，抓取元素 html.xpath("")
     universities_name = html.xpath(
         "//table[@class='ch-table']/tbody[1]/tr//td//form[1]//a[1]/text()"
     )
@@ -64,18 +64,6 @@ def queryprofession(dict):
     for i in dict:
         k = dict.get(i)
         html = get(url + k)
-        """
-        school_name = html.xpath(
-            "//table[contains(@class,'ch-table more-content')]/tbody[1]/tr/td[2]/text()"
-        )
-        profession_name = html.xpath(
-            "//table[contains(@class,'ch-table more-content')]/tbody[1]/tr//td[3]/text()"
-        )
-        profession_direct = html.xpath(
-            "//table[contains(@class,'ch-table more-content')]/tbody[1]/tr//td[4]/text()"
-        )
-        """
-        # 以上为错误检查所需
         profession_url = html.xpath(
             "//table[contains(@class,'ch-table more-content')]/tbody[1]/tr//td[8]/a/@href"
         )
@@ -84,7 +72,6 @@ def queryprofession(dict):
             university_name.append(i)
             a = str(profession_url[x]).replace("/zsml/kskm.jsp?id=", "")
             profession_id.append(a)
-        # allprofession += list(zip(university_name,school_name,profession_name,profession_direct,profession_id))
         print("%s已经完成" % (i))
     return profession_id
 
@@ -107,7 +94,7 @@ def queryinfo(list):
     return finalinfo
 
 
-def task_one(name=str, ml: str = "12", xk: str = "1205",page: int=2):
+def task_one(name=str, ml: str = "12", xk: str = "1205", page: int = 2):
     # 第一步，获取招生单位名单
     query = query = "?mldm=" + ml + "&yjxkdm=" + xk
     # 翻页，不想去做判断里，就手动输入
@@ -137,7 +124,7 @@ def task_three(name):
     # allprofession = testdict
     finalinfo = queryinfo(allprofession)
     savefile(name, json.dumps(list(finalinfo)))
-    print("第三步已完成，生成%s文件，请查收"%(name))
+    print("第三步已完成，生成%s文件，请查收" % (name))
 
 
 if __name__ == "__main__":
@@ -148,6 +135,6 @@ if __name__ == "__main__":
     ml = input("\nml=")
     xk = input("\nxl=")
     page = int(input("\n共计多少页，不清楚就去研招网看一下"))
-    task_one(task,ml,xk,page)
+    task_one(task, ml, xk, page)
     task_two(task + "完整专业目录")
     task_three(task + "详细信息")
