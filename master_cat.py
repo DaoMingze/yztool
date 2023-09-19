@@ -18,7 +18,8 @@ def get(url=str, keyword: str = ""):
     fakeua = {
         "Accept": "text/html, application/xhtml+xml, */*",
         "Accept-Language": "en-US,en;q=0.8,zh-Hans-CN;q=0.5,zh-Hans;q=0.3",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) \
+            Gecko/20100101 Firefox/108.0",
     }
     timeout = 60
     # ↑虚假UA（用户代理），以免抓取频率过高导致报错
@@ -65,7 +66,8 @@ def queryprofession(dict):
         k = dict.get(i)
         html = get(url + k)
         profession_url = html.xpath(
-            "//table[contains(@class,'ch-table more-content')]/tbody[1]/tr//td[8]/a/@href"
+            "//table[contains(@class,'ch-table more-content')]\
+                /tbody[1]/tr//td[8]/a/@href"
         )
         university_name = []
         for x in range(len(profession_url)):
@@ -116,7 +118,7 @@ def task_two(name=str):
     # 我默认一个招生单位的一个学科（四位代码）不会有30条以上的专业、方向，所以没写翻页。如果有，按上面招生单位的处理。
     # savefile(name, str(allprofession))
     savefile(task + "_index", json.dumps(profession_id))
-    return print("第二步完成，若信息有误则取消注释进行检查")
+    return print("第二步完成，若信息有误则取消注释进行检查\n下面进行第三步，请稍候")
 
 
 def task_three(name):
@@ -132,9 +134,9 @@ if __name__ == "__main__":
     print("其他学科根据门类代码修改ml，学科代码修改xk")
     print("例如图情学硕：ml=12，xk=1205\n而图情专硕：ml=zyxw，xk=1255")
     task = input("采集项目名：")
-    ml = input("\nml=")
-    xk = input("\nxl=")
-    page = int(input("\n共计多少页，不清楚就去研招网看一下"))
+    ml = input("ml=")
+    xk = input("xk=")
+    page = int(input("共计多少页，不清楚就去研招网看一下："))
     task_one(task, ml, xk, page)
     task_two(task + "完整专业目录")
     task_three(task + "详细信息")
