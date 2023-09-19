@@ -1,5 +1,3 @@
-import json
-
 import jieba
 
 
@@ -72,18 +70,24 @@ def maskpic(path: str = ""):
     return mask
 
 
+def writefile(name: str, context: str):
+    with open(name + ".txt", mode="w", encoding="utf-8") as file:
+        file.write(context)
+
+
 if __name__ == "__main__":
-    f = readfile("专业课统计")
+    filename = input("请输入纯文本格式文件名：")
+    f = readfile(filename)
     f = preprocess(f)
     jieba.load_userdict("lis_dict.txt")
     ls = jieba.lcut(f)  # 生成分词列表
     ls = cleanlist(ls, ['与', ' '])
     text = dict(wordcount(ls, 1000))
-    with open("处理后.txt", mode="w", encoding="utf-8") as file:
-        file.write(str(text))
-    mask = maskpic("./books1280.png")
-    genpic(name="1205", ctx=text)
-
+    writefile(filename + "处理后", str(text))
+    mask = maskpic("2023/books1280.png")
+    genpic(name=filename + "word", ctx=text)
+'''
     with open("处理后1.txt", mode="r", encoding="utf-8") as test:
         man = json.load(test)
     genpic(name="1205man", ctx=man)
+'''
