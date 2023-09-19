@@ -1,5 +1,6 @@
 import json
 import os
+import time
 
 import requests
 from lxml import etree
@@ -8,6 +9,17 @@ from lxml import etree
 
 right_path = __file__.rstrip(os.path.basename(__file__))  # 获取当前文件的所在路径
 os.chdir(right_path)  # 将工作路径改至目标路径
+
+
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"{func.__name__} 用时 {end_time-start_time:.2f} 秒")
+        return result
+
+    return wrapper
 
 
 def get(url=str, keyword: str = ""):
@@ -74,7 +86,8 @@ def queryprofession(dict):
             university_name.append(i)
             a = str(profession_url[x]).replace("/zsml/kskm.jsp?id=", "")
             profession_id.append(a)
-        print("%s已经完成" % (i))
+        # print("%s已经完成" % (i))
+    print(f"第一步已完成，共计{len(dict)}个学校在该学科下招生")
     return profession_id
 
 
@@ -86,12 +99,13 @@ def queryinfo(list):
         unversity = html.xpath("(//td[@class='zsml-summary'])[1]/text()")
         school = html.xpath("(//td[@class='zsml-summary'])[3]/text()")
         profession = html.xpath("(//td[@class='zsml-summary'])[4]/text()")
+        way = html.xpath("(//td[@class='zsml-summary'])[5]/text()")
         dirct = html.xpath("(//td[@class='zsml-summary'])[6]/text()")
         quota = html.xpath("(//td[@class='zsml-summary'])[8]/text()")
-        major1 = html.xpath("(//tbody[@class='zsml-res-items']//td)[3]/text()")
-        major2 = html.xpath("(//tbody[@class='zsml-res-items']//td)[4]/text()")
+        major1 = html.xpath("(//tbody[@class='zsml-res-items']//td)[3]/text()[1]")
+        major2 = html.xpath("(//tbody[@class='zsml-res-items']//td)[4]/text()[1]")
         finalinfo += tuple(
-            zip(unversity, school, profession, dirct, quota, major1, major2)
+            zip(unversity, school, profession, way, dirct, quota, major1, major2)
         )
     return finalinfo
 
@@ -118,14 +132,20 @@ def task_two(name=str):
     # 我默认一个招生单位的一个学科（四位代码）不会有30条以上的专业、方向，所以没写翻页。如果有，按上面招生单位的处理。
     # savefile(name, str(allprofession))
     savefile(task + "_index", json.dumps(profession_id))
-    return print("第二步完成，若信息有误则取消注释进行检查\n下面进行第三步，请稍候")
+    return print("第二步已完成，若信息有误则取消注释进行检查\n下面进行第三步，请稍候")
 
 
+@timer
 def task_three(name):
     allprofession = readfile(task + "_index")
     # allprofession = testdict
     finalinfo = queryinfo(allprofession)
-    savefile(name, json.dumps(list(finalinfo)))
+    """ fina = json.dumps(finalinfo)
+    print(type(fina))
+    for x in range(len(fina)):
+        for y in range(len(fina[x])):
+            fina[x][y] = fina[x][y].strip() """
+    savefile(name, json.dumps(finalinfo))
     print("第三步已完成，生成%s文件，请查收" % (name))
 
 
@@ -134,9 +154,13 @@ if __name__ == "__main__":
     print("其他学科根据门类代码修改ml，学科代码修改xk")
     print("例如图情学硕：ml=12，xk=1205\n而图情专硕：ml=zyxw，xk=1255")
     task = input("采集项目名：")
-    ml = input("ml=")
-    xk = input("xk=")
-    page = int(input("共计多少页，不清楚就去研招网看一下："))
+    ml = input("请输入门类代码（2位数字），若为专业学位，则输入zyxw：")
+    xk = input("请输入学科代码（4位数字）：")
+    page = int(
+        input(
+            f"共计多少页，不清楚就去\n[研招网](https://yz.chsi.com.cn/zsml/queryAction.do?mldm={ml}&yjxkdm={xk})看一下："
+        )
+    )
     task_one(task, ml, xk, page)
     task_two(task + "完整专业目录")
     task_three(task + "详细信息")
